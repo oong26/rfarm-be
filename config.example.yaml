@@ -1,0 +1,38 @@
+# rfarm-be configuration template.
+# Copy to config.yaml (git-ignored) and fill in the real values.
+# Every key is documented in docs/development.md.
+
+app:
+  env: development # development | staging | production
+  addr: ":8080"
+  readTimeout: 10s
+  writeTimeout: 15s
+  idleTimeout: 60s
+  shutdownTimeout: 10s
+  defaultTimezone: Asia/Jakarta
+  maxImportBytes: 20971520
+
+database:
+  url: postgres://user:pass@localhost:5432/rfarm?sslmode=disable
+  maxConns: 10
+
+redis:
+  addr: localhost:6379
+  password: ""
+  db: 0
+  dialTimeout: 2s
+  readTimeout: 1s
+  writeTimeout: 1s
+  poolSize: 10
+
+auth:
+  jwtSigningKey: change-me
+  accessTokenTTL: 15m
+  refreshTokenTTL: 720h
+
+cors:
+  allowedOrigins:
+    - http://localhost:5173
+
+log:
+  level: info # debug | info | warn | error
