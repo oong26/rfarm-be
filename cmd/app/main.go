@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/oong26/rfarm-be/internal/configs"
 	"github.com/oong26/rfarm-be/pkg/config"
 	"github.com/oong26/rfarm-be/pkg/logger"
+	"github.com/oong26/rfarm-be/pkg/middleware"
 )
 
 func main() {
@@ -39,7 +39,10 @@ func run(cfg *configs.Config, log *slog.Logger) error {
 	log.Info("server starting", "addr", cfg.App.Addr, "env", cfg.App.Env)
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID())
+	r.Use(middleware.Recover(log))
+	r.Use(middleware.AccessLog(log))
+	r.Use(middleware.CORS(cfg.Cors.AllowedOrigins))
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("welcome")); err != nil {
 			log.Warn("write response failed", "err", err)
