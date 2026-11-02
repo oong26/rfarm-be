@@ -19,7 +19,22 @@ func TestFail(t *testing.T) {
 		wantStatus int
 		wantCode   string
 		wantDetail string
+		wantFields int
 	}{
+		{
+			name:       "bad request",
+			err:        response.BadRequest("Body tidak valid."),
+			wantStatus: http.StatusBadRequest,
+			wantCode:   "bad_request",
+			wantDetail: "Body tidak valid.",
+		},
+		{
+			name:       "invalid query",
+			err:        response.InvalidQuery("Filter tidak valid."),
+			wantStatus: http.StatusBadRequest,
+			wantCode:   "invalid_query",
+			wantDetail: "Filter tidak valid.",
+		},
 		{
 			name:       "unauthorized",
 			err:        response.Unauthorized("Sesi tidak valid."),
@@ -35,11 +50,84 @@ func TestFail(t *testing.T) {
 			wantDetail: "Tidak diizinkan.",
 		},
 		{
+			name:       "not found",
+			err:        response.NotFound("penjualan"),
+			wantStatus: http.StatusNotFound,
+			wantCode:   "not_found",
+			wantDetail: "Data penjualan tidak ditemukan.",
+		},
+		{
+			name:       "conflict",
+			err:        response.Conflict("Data sudah ada."),
+			wantStatus: http.StatusConflict,
+			wantCode:   "conflict",
+			wantDetail: "Data sudah ada.",
+		},
+		{
+			name:       "gone",
+			err:        response.Gone("Endpoint sudah dihapus."),
+			wantStatus: http.StatusGone,
+			wantCode:   "gone",
+			wantDetail: "Endpoint sudah dihapus.",
+		},
+		{
+			name:       "precondition failed",
+			err:        response.PreconditionFailed("Data sudah diubah."),
+			wantStatus: http.StatusPreconditionFailed,
+			wantCode:   "version_conflict",
+			wantDetail: "Data sudah diubah.",
+		},
+		{
+			name:       "precondition required",
+			err:        response.PreconditionRequired(),
+			wantStatus: http.StatusPreconditionRequired,
+			wantCode:   "precondition_required",
+			wantDetail: "Header If-Match wajib diisi.",
+		},
+		{
+			name:       "unsupported media",
+			err:        response.UnsupportedMedia("Gunakan application/json."),
+			wantStatus: http.StatusUnsupportedMediaType,
+			wantCode:   "unsupported_media_type",
+			wantDetail: "Gunakan application/json.",
+		},
+		{
+			name: "unprocessable",
+			err: response.Unprocessable(
+				response.Field{Field: "qty", Code: "min", Message: "Jumlah minimal 1."},
+			),
+			wantStatus: http.StatusUnprocessableEntity,
+			wantCode:   "validation_failed",
+			wantDetail: "",
+			wantFields: 1,
+		},
+		{
+			name:       "too many requests",
+			err:        response.TooManyRequests("Terlalu banyak permintaan."),
+			wantStatus: http.StatusTooManyRequests,
+			wantCode:   "too_many_requests",
+			wantDetail: "Terlalu banyak permintaan.",
+		},
+		{
 			name:       "internal hides the cause",
 			err:        response.Internal(errors.New("database down")),
 			wantStatus: http.StatusInternalServerError,
 			wantCode:   "internal",
 			wantDetail: "Terjadi kesalahan pada server.",
+		},
+		{
+			name:       "service unavailable",
+			err:        response.ServiceUnavailable("Layanan tidak tersedia."),
+			wantStatus: http.StatusServiceUnavailable,
+			wantCode:   "service_unavailable",
+			wantDetail: "Layanan tidak tersedia.",
+		},
+		{
+			name:       "gateway timeout",
+			err:        response.GatewayTimeout("Permintaan melebihi batas waktu."),
+			wantStatus: http.StatusGatewayTimeout,
+			wantCode:   "gateway_timeout",
+			wantDetail: "Permintaan melebihi batas waktu.",
 		},
 		{
 			name:       "unknown error becomes internal",
@@ -90,8 +178,14 @@ func TestFail(t *testing.T) {
 			if problem.RequestID != "req-1" {
 				t.Errorf("problem.requestId = %q, want req-1", problem.RequestID)
 			}
+			if problem.Title == "" {
+				t.Error("problem.title is empty")
+			}
 			if got, want := problem.Type, "https://rfarm.example/problems/"+tt.wantCode; got != want {
 				t.Errorf("problem.type = %q, want %q", got, want)
+			}
+			if len(problem.Errors) != tt.wantFields {
+				t.Errorf("problem.errors length = %d, want %d", len(problem.Errors), tt.wantFields)
 			}
 		})
 	}

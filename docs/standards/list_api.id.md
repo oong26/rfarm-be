@@ -191,7 +191,7 @@ func (s *saleService) ListSales(ctx context.Context, in dtos.ListSalesInput) (dt
 
     return dtos.ListSalesResult{
         Data: items,
-        Meta: response.NewMeta(page, total),
+        Meta: response.NewMeta(page.Number, page.Size, total),
     }, nil
 }
 ```
