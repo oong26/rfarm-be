@@ -1,9 +1,19 @@
 module github.com/oong26/rfarm-be
 
-go 1.24
-
-toolchain go1.24.1
+go 1.26.0
 
 require gopkg.in/yaml.v3 v3.0.1
 
 require github.com/go-chi/chi/v5 v5.5.0
+
+require (
+	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
+	github.com/go-playground/locales v0.14.2 // indirect
+	github.com/go-playground/universal-translator v0.18.2 // indirect
+	github.com/go-playground/validator/v10 v10.30.6 // indirect
+	github.com/leodido/go-urn v1.5.0 // indirect
+	github.com/shopspring/decimal v1.6.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
+)
