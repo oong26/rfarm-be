@@ -34,3 +34,7 @@ config.yaml
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# others
+tmp/build-errors.log
+tmp/main
